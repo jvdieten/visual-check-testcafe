@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link type="text/css" rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <title>visual-check-testcafe Report</title>
+    <style>
+        .badge-error {
+            color: red;
+        }
+        .error-div span {
+            font-weight: bold;
+            padding: 10px;
+            min-height: 40px;
+        }
+    </style>
+</head>
+
+<body style="background-color:ivory">
+
+<div class="container">
+
+    <h1 class="text-center">visual-check-testcafe Report</h1>
+
+    <h3>Total tests: <span class="badge-error"><strong>{{total}}</strong></span></h3>
+
+    <div class="row error-div">
+        <span class="text-center col-lg-2" style="margin-top: 7px;">Index</span>
+        <span class="text-center col-lg-5" style="margin-top: 7px;">Test</span>
+        <span class="text-center col-lg-3" style="margin-top: 7px;">Result</span>
+        <span class="text-center col-lg-2">Toggle</span>
+    </div>
+
+    {{#each results as |result|}}
+    <div>
+        <div class="row text-center error-div" style="background-color: lavender; border: 1px solid">
+            <span class="col-lg-2" style="margin-top: 7px;">{{result.index}}</span>
+            <span class="col-lg-5" style="margin-top: 7px;">{{result.name}}</span>
+            <span class="col-lg-3" style="margin-top: 7px;">{{result.result}}</span>
+            <span class="col-lg-2"><button id="button{{result.index}}" class="btn btn-success" style="height: 30px;" onclick="expandTable({{result.index}})">Show Details</button></span>
+        </div>
+        <div id="detail{{result.index}}" class="col-lg-12" style="display: none">
+            <table border="1" class="table text-center table-hover table-sm" style="background-color: lightgoldenrodyellow">
+                <thead class="thead-inverse">
+                <tr>
+                    <th class="text-center" style="width: 45%">Baseline</th>
+                    <th class="text-center" style="width: 18%">Actual</th>
+                    <th class="text-center" style="width: 15%">Diff</th>
+                </tr>
+                </thead>
+                <tbody>
+                {{#each result.details as |detail| }}
+                <tr>
+                    <td style="background-color: lightcyan"><img src="{{detail.baseImgPath}}"></td>
+                    <td style="background-color: lightcyan"><img src="{{detail.actualImgPath}}"></td>
+                    <td style="background-color: lightcyan"><img src="{{detail.diffImgPath}}"></td>
+                </tr>
+                {{/each}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {{/each}}
+    <div style="position: fixed;right: 10px;bottom: 10px">
+        <button class="btn btn-primary" onclick="scrollToTop()" style="">Scroll top</button>
+    </div>
+</div>
+</body>
+
+<script>
+  function expandTable(id) {
+    let element = document.getElementById('detail'+id);
+    element.style.display = (element.style.display === 'none') ? 'block' : 'none';
+    document.getElementById('button'+id).textContent = (document.getElementById('button'+id).textContent === 'Show Details') ?
+      'Hide Details' : 'Show Details';
+  }
+
+  function scrollToTop() {
+    window.scrollTo(0, 0);
+  }
+
+</script>
+
+</html>
