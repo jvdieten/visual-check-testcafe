@@ -5,12 +5,61 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link type="text/css" rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <title>visual-check-testcafe Report</title>
     <style>
-        .badge-error {
-            color: red;
+        .imgDiv {
+            display: grid;
+            grid-template-columns: 33% 33% 33%;
         }
+
+        .imgTitleSpan {
+            background: #016a75;
+            padding-left: 5px;
+            padding-top: 5px;
+            color: #ffffff;
+            text-align: left;
+            padding-bottom: 5px;
+        }
+
+        img {
+            max-width: 100%;
+        }
+
+        .container {
+            max-width: 90%;
+            padding-left: 5%;
+        }
+
+        .report-table {
+            width: 90%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            font-size: 0.9em;
+            font-family: sans-serif;
+            min-width: 400px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .report-table thead tr {
+            background-color: #016a75;
+            color: #ffffff;
+            text-align: left;
+        }
+
+        .report-table th,
+        .report-table td {
+            padding: 12px 15px;
+        }
+
+        .report-table tbody tr {
+            border-bottom: 1px solid #dddddd;
+        }
+
+        .report-table tbody tr.active-row {
+            font-weight: bold;
+            color: #009879;
+        }
+
         .error-div span {
             font-weight: bold;
             padding: 10px;
@@ -19,51 +68,57 @@
     </style>
 </head>
 
-<body style="background-color:ivory">
+<body>
 
 <div class="container">
 
     <h1 class="text-center">visual-check-testcafe Report</h1>
 
     <h3>Total tests: <span class="badge-error"><strong>{{total}}</strong></span></h3>
+    <table class="report-table">
+        <thead>
+        <tr>
+            <th>Browser</th>
+            <th>OS</th>
+            <th>Test</th>
+            <th>Result</th>
+            <th>Toggle</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{#each results as |result|}}
 
-    <div class="row error-div">
-        <span class="text-center col-lg-2" style="margin-top: 7px;">Index</span>
-        <span class="text-center col-lg-5" style="margin-top: 7px;">Test</span>
-        <span class="text-center col-lg-3" style="margin-top: 7px;">Result</span>
-        <span class="text-center col-lg-2">Toggle</span>
-    </div>
+        <tr>
+            <td>{{result.browser}}</td>
+            <td>{{result.os}}</td>
+            <td>{{result.name}}</td>
+            <td>{{result.result}}</td>
+            <td>
+                <button id="button{{result.index}}"
+                        onclick="expandTable({{result.index}})">Show Details
+                </button>
+            </td>
+        </tr>
+        <tr id="detail{{result.index}}" style="display: none">
+            <td colspan="5">
+                <div class="imgDiv">
+                    <span class="imgTitleSpan">Baseline</span>
+                    <span class="imgTitleSpan">Actual</span>
+                    <span class="imgTitleSpan">Diff</span>
+                </div>
+                <div class="imgDiv">
+                    {{#each result.details as |detail| }}
+                    <span><img src="{{detail.baseImgPath}}"></span>
+                    <span><img src="{{detail.actualImgPath}}"></span>
+                    <span><img src="{{detail.diffImgPath}}"></span>
+                    {{/each}}
+                </div>
+            </td>
+        </tr>
 
-    {{#each results as |result|}}
-    <div>
-        <div class="row text-center error-div" style="background-color: lavender; border: 1px solid">
-            <span class="col-lg-2" style="margin-top: 7px;">{{result.index}}</span>
-            <span class="col-lg-5" style="margin-top: 7px;">{{result.name}}</span>
-            <span class="col-lg-3" style="margin-top: 7px;">{{result.result}}</span>
-            <span class="col-lg-2"><button id="button{{result.index}}" class="btn btn-success" style="height: 30px;" onclick="expandTable({{result.index}})">Show Details</button></span>
-        </div>
-        <div id="detail{{result.index}}" class="col-lg-12" style="display: none">
-            <table border="1" class="table text-center table-hover table-sm" style="background-color: lightgoldenrodyellow">
-                <thead class="thead-inverse">
-                <tr>
-                    <th class="text-center" style="width: 45%">Baseline</th>
-                    <th class="text-center" style="width: 18%">Actual</th>
-                    <th class="text-center" style="width: 15%">Diff</th>
-                </tr>
-                </thead>
-                <tbody>
-                {{#each result.details as |detail| }}
-                <tr>
-                    <td style="background-color: lightcyan"><img src="{{detail.baseImgPath}}"></td>
-                    <td style="background-color: lightcyan"><img src="{{detail.actualImgPath}}"></td>
-                    <td style="background-color: lightcyan"><img src="{{detail.diffImgPath}}"></td>
-                </tr>
-                {{/each}}
-                </tbody>
-            </table>
-        </div>
-    </div>
-    {{/each}}
+        {{/each}}
+        </tbody>
+    </table>
     <div style="position: fixed;right: 10px;bottom: 10px">
         <button class="btn btn-primary" onclick="scrollToTop()" style="">Scroll top</button>
     </div>
@@ -72,10 +127,10 @@
 
 <script>
   function expandTable(id) {
-    let element = document.getElementById('detail'+id);
-    element.style.display = (element.style.display === 'none') ? 'block' : 'none';
-    document.getElementById('button'+id).textContent = (document.getElementById('button'+id).textContent === 'Show Details') ?
-      'Hide Details' : 'Show Details';
+    let element = document.getElementById('detail' + id);
+    element.style.display = (element.style.display === 'none') ? '' : 'none';
+    document.getElementById('button' + id).textContent = (document.getElementById('button' + id).textContent === 'Hide Details') ?
+      'Show Details' : 'Hide Details';
   }
 
   function scrollToTop() {

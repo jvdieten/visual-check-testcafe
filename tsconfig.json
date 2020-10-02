@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
     "incremental": true,
     "target": "es2017",
     "outDir": "build/main",
@@ -57,7 +58,10 @@
   },
   "include": [
     "src/**/compare.ts",
-    "src/index.ts"
+    "src/**/model.ts",
+    "src/**/report.ts",
+    "src/index.ts",
+    "src/html-report-template.html"
   ],
   "exclude": [
     "node_modules/**"

@@ -1,15 +1,19 @@
-import { copyFileSync, createWriteStream, existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
+import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { resolve } from 'path';
 
-import { createCanvas, loadImage } from 'canvas';
 // @ts-ignore
 import { Selector, t } from 'testcafe';
 
-const compareImages = require('resemblejs/compareImages');
+import { Reporter } from "./reporter";
 
-const VISUAL_MAIN_DIR = 'test/screenshots/';
+import { ReportResult } from './model';
+import * as fs from 'fs';
+
+const compareImages = require('resemblejs/compareImages');
+const VISUAL_MAIN_DIR = process.cwd() + '/visual-check-testcafe/';
+const SCREENSHOT_DIR = 'screenshots/';
 const SCREENSHOT_BASELINE_DIR = 'baseline/';
-const SCREENSHOT_REPORT_DIR = '.reports/e2e/screenshots/';
+const REPORT_DIR = '.reports/visual-check-testcafe/';
 const ACTUAL_SCREENSHOT_DIR = 'tests/';
 const DIFF_SCREENSHOT_DIR = 'diff/';
 
@@ -21,53 +25,34 @@ function createDirectoryIfNotExists(dir: string): void {
   }
 }
 
-async function createReportImage(baselineScreenshotPath: string, testScreenshotPath: string, diffScreenshotPath: string): Promise<void> {
-  const baselineImage = await loadImage(baselineScreenshotPath);
-  const testImage = await loadImage(testScreenshotPath);
-  const diffImage = await loadImage(diffScreenshotPath);
 
-  const { width, height } = baselineImage;
-
-  const canvas = createCanvas(width * 3, height);
-  const ctx = canvas.getContext('2d');
-
-  ctx.drawImage(baselineImage, 0, 0, width, height);
-  ctx.drawImage(testImage, width, 0, width, height);
-  ctx.drawImage(diffImage, 2 * width, 0, width, height);
-
-  // add header
-  ctx.font = '15px Impact';
-  ctx.fillText('Baseline', 0, 12);
-  ctx.fillText('Actual', width, 12);
-  ctx.fillText('Diff', width * 2, 12);
-
-  const out = createWriteStream(testScreenshotPath);
-  const stream = canvas.createPNGStream();
-
-  stream.pipe(out);
-}
-
-export async function visualCompare(testController: typeof t, element: Selector, feature: string): Promise<void> {
+export async function visualCheck(testController: typeof t, feature: string, element?: Selector): Promise<void> {
   // @ts-ignore
   const testCase = testController.testRun.test.name;
 
   const imgName = `${testCase}_${testController.browser.name}_${testController.browser.os.name}.png`;
 
-  createDirectoryIfNotExists(resolve(SCREENSHOT_REPORT_DIR, ACTUAL_SCREENSHOT_DIR, feature));
+  createDirectoryIfNotExists(resolve(REPORT_DIR, ACTUAL_SCREENSHOT_DIR, feature));
   createDirectoryIfNotExists(resolve(VISUAL_MAIN_DIR, SCREENSHOT_BASELINE_DIR, feature));
-  createDirectoryIfNotExists(resolve(SCREENSHOT_REPORT_DIR, DIFF_SCREENSHOT_DIR, feature));
+  createDirectoryIfNotExists(resolve(REPORT_DIR, DIFF_SCREENSHOT_DIR, feature));
 
-  const actualScreenshotPath = resolve(SCREENSHOT_REPORT_DIR, ACTUAL_SCREENSHOT_DIR, feature, imgName);
+  const actualScreenshotPath = resolve(SCREENSHOT_DIR, ACTUAL_SCREENSHOT_DIR, feature, imgName);
   const baselineScreenshotPath = resolve(VISUAL_MAIN_DIR, SCREENSHOT_BASELINE_DIR, feature, imgName);
-  const diffScreenshotPath = resolve(SCREENSHOT_REPORT_DIR, DIFF_SCREENSHOT_DIR, feature, imgName);
+  const diffScreenshotPath = resolve(REPORT_DIR, DIFF_SCREENSHOT_DIR, feature, imgName);
+  const testScreenshotPath = resolve(REPORT_DIR, ACTUAL_SCREENSHOT_DIR, feature, imgName);
 
-  await testController.takeElementScreenshot(element, ACTUAL_SCREENSHOT_DIR + feature + '/' + imgName);
+  if (element) {
+    await testController.takeElementScreenshot(element, ACTUAL_SCREENSHOT_DIR + feature + '/' + imgName);
+  } else {
+    await testController.takeScreenshot({ path: ACTUAL_SCREENSHOT_DIR + feature + '/' + imgName, fullPage: true });
+  }
 
   if (!existsSync(baselineScreenshotPath)) {
     copyFileSync(actualScreenshotPath, baselineScreenshotPath);
-    await testController.expect('no baseline').ok('Visual compare No baseline present,' +
-      ' saving actual element screenshot as baseline');
+    await testController.expect('no baseline').notOk('visual-check-testcafe no baseline present,' +
+      ' saving actual element screenshot as baseline for next run');
   }
+  copyFileSync(actualScreenshotPath, testScreenshotPath);
 
   const options = {
     ignore: 'antialiasing',
@@ -85,17 +70,34 @@ export async function visualCompare(testController: typeof t, element: Selector,
 
   // compare images
   const result = await compareImages(
-    await readFileSync(baselineScreenshotPath),
-    await readFileSync(actualScreenshotPath),
+    readFileSync(baselineScreenshotPath),
+    readFileSync(actualScreenshotPath),
     options
   );
 
   writeFileSync(diffScreenshotPath, result.getBuffer());
 
   // write combined image to testScreenshot for reporting
-  await createReportImage(baselineScreenshotPath, actualScreenshotPath, diffScreenshotPath);
+  await Reporter.createReportImage(baselineScreenshotPath, actualScreenshotPath, diffScreenshotPath);
   const errorMessage = `Element screenshot difference greater then max diff percentage: expected
      ${result.rawMisMatchPercentage} to be less or equal to ${MAX_DIFF_PERCENTAGE}`;
-  await testController.expect(result.rawMisMatchPercentage <= MAX_DIFF_PERCENTAGE).ok(errorMessage);
 
+  const compareOk = result.rawMisMatchPercentage <= MAX_DIFF_PERCENTAGE;
+  const compareResult = compareOk ? 'passed' : 'failed';
+  const reportResult: ReportResult = {
+    result: compareResult,
+    name: testCase,
+    browser: testController.browser.name,
+    os: testController.browser.os.name,
+    details: [{
+      baseImgPath: './../../visual-check-testcafe/'+SCREENSHOT_BASELINE_DIR+'/'+feature+'/'+imgName,
+      diffImgPath: DIFF_SCREENSHOT_DIR+feature+'/'+imgName,
+      actualImgPath: ACTUAL_SCREENSHOT_DIR+feature+'/'+imgName
+    }]
+  };
+  const reportResultPath = resolve(REPORT_DIR, 'results.txt');
+  fs.writeFileSync(reportResultPath, JSON.stringify(reportResult)+'\n', { 'flag': 'a' });
+  await Reporter.createHTMLReport(REPORT_DIR);
+  await testController.expect(compareOk).ok(errorMessage);
 }
+
