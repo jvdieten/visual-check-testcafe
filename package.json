@@ -1,6 +1,6 @@
 {
   "name": "visual-check-testcafe",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Testcafe plugin for testing visual regression backed by resemblejs image compare",
   "main": "build/main/index.js",
   "typings": "build/main/index.d.ts",
