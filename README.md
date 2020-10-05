@@ -37,10 +37,12 @@ test('Automated visual testing', async t => {
 
 ### Reporting
 
+
 <p align="center">
-  <img width="700" height="475" src="report.png">
+  <img width="600" height="400" src="report.png">
 </p>
 
+Report will be located at .reports/visual-check-testcafe/report.html
 
 ### Options
 ```
