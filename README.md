@@ -1,3 +1,5 @@
+[![NPM](https://nodei.co/npm/visual-check-testcafe.png)](https://nodei.co/npm/visual-check-testcafe/)
+
 # visual-check-testcafe
 
 Testcafe plugin for testing visual regression backed by resemblejs image compare
@@ -21,16 +23,12 @@ You can write a TestCafe test with automated visual testing like this.
 
 ```js
 import { visualCheck } from 'visual-check-testcafe';
-import { Selector } from 'testcafe';
 
 fixture `TestCafe tests with Visual compare`
     .page `http://example.com`;
 
 test('Automated visual testing', async t => {
-  // invoke with selector to validate part of a page
-  await visualCheck(t, 'loginForm', Selector('form'));
-  // invoke without selector to validate whole page
-  await visualCheck(t, 'loginPage');
+  await visualCheck(t, options);
 });
 
 ```
