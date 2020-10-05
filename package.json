@@ -10,8 +10,13 @@
   "license": "MIT",
   "keywords": [
     "testcafe",
+    "testcafe plugin",
     "visual compare",
     "screenshot compare",
+    "testcafe visual",
+    "testcafe layout",
+    "testcafe image compare",
+    "testcafe visual check",
     "visual regression",
     "layout testing",
     "layout regression",
@@ -41,7 +46,6 @@
   "dependencies": {
     "canvas": "^2.6.1",
     "handlebars": "^4.7.6",
-    "n-readlines": "^1.0.0",
     "resemblejs": "^3.2.3"
   },
   "devDependencies": {
