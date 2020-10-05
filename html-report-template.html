@@ -12,6 +12,21 @@
             grid-template-columns: 33% 33% 33%;
         }
 
+        .testResultDiv {
+            display: grid;
+            grid-template-columns: 25% 25% 25% 25%;
+        }
+
+        span {
+            padding-left: 5px;
+        }
+
+        button {
+            width: fit-content;
+            color: #ffffff;
+            background: grey;
+        }
+
         .imgTitleSpan {
             background: #016a75;
             padding-left: 5px;
@@ -19,6 +34,7 @@
             color: #ffffff;
             text-align: left;
             padding-bottom: 5px;
+            font-weight: bold;
         }
 
         img {
@@ -78,44 +94,73 @@
     <table class="report-table">
         <thead>
         <tr>
-            <th>Browser</th>
-            <th>OS</th>
+            <th>Fixture</th>
             <th>Test</th>
-            <th>Result</th>
-            <th>Toggle</th>
+            <th>Total passed</th>
+            <th>Total failed</th>
+            <th>Test status</th>
+            <th>Toggle tests</th>
         </tr>
         </thead>
         <tbody>
         {{#each results as |result|}}
-
         <tr>
-            <td>{{result.browser}}</td>
-            <td>{{result.os}}</td>
-            <td>{{result.name}}</td>
-            <td>{{result.result}}</td>
+            <td>{{result.fixtureName}}</td>
+            <td>{{result.testName}}</td>
+            <td>{{result.totalPassed}}</td>
+            <td>{{result.totalFailed}}</td>
+            <td>{{result.testStatus}}</td>
             <td>
-                <button id="button{{result.index}}"
-                        onclick="expandTable({{result.index}})">Show Details
+                <button id="testbutton{{result.index}}"
+                        onclick="expandTestTable({{result.index}})">Show Tests
                 </button>
             </td>
         </tr>
-        <tr id="detail{{result.index}}" style="display: none">
-            <td colspan="5">
-                <div class="imgDiv">
-                    <span class="imgTitleSpan">Baseline</span>
-                    <span class="imgTitleSpan">Actual</span>
-                    <span class="imgTitleSpan">Diff</span>
+
+        <tr id="test{{result.index}}" style="display: none">
+            <td colspan="6">
+                <div class="testResultDiv">
+                    <span class="imgTitleSpan">Browser</span>
+                    <span class="imgTitleSpan">OS</span>
+                    <span class="imgTitleSpan">Status</span>
+                    <span class="imgTitleSpan">Toggle details</span>
+
                 </div>
-                <div class="imgDiv">
-                    {{#each result.details as |detail| }}
-                    <span><img src="{{detail.baseImgPath}}"></span>
-                    <span><img src="{{detail.actualImgPath}}"></span>
-                    <span><img src="{{detail.diffImgPath}}"></span>
+                <br/>
+                {{#each result.reportResults as |testResult|}}
+
+                <div class="testResultDiv">
+                    <span>{{testResult.browser}}</span>
+                    <span>{{testResult.os}}</span>
+                    <span>{{testResult.status}}</span>
+                    <button id="button{{result.index}}{{testResult.index}}"
+                            onclick="expandTable('{{result.index}}{{testResult.index}}')">Show
+                        Details
+                    </button>
+                </div>
+                <br/>
+                <div id="detail{{result.index}}{{testResult.index}}" style="display: none">
+                    <div class="imgDiv">
+                        <span class="imgTitleSpan">Baseline</span>
+                        <span class="imgTitleSpan">Actual</span>
+                        <span class="imgTitleSpan">Diff</span>
+                    </div>
+                    <br/>
+                    {{#each testResult.details as |detail| }}
+                    <div class="imgDiv">
+                        <span><img src="{{detail.baseImgPath}}"></span>
+                        <span><img src="{{detail.actualImgPath}}"></span>
+                        <span><img src="{{detail.diffImgPath}}"></span>
+                    </div>
+                    <br/>
                     {{/each}}
+
                 </div>
+
+                {{/each}}
+
             </td>
         </tr>
-
         {{/each}}
         </tbody>
     </table>
@@ -131,6 +176,13 @@
     element.style.display = (element.style.display === 'none') ? '' : 'none';
     document.getElementById('button' + id).textContent = (document.getElementById('button' + id).textContent === 'Hide Details') ?
       'Show Details' : 'Hide Details';
+  }
+
+  function expandTestTable(id) {
+    let element = document.getElementById('test' + id);
+    element.style.display = (element.style.display === 'none') ? '' : 'none';
+    document.getElementById('testbutton' + id).textContent = (document.getElementById('testbutton' + id).textContent === 'Hide Tests') ?
+      'Show Tests' : 'Hide Tests';
   }
 
   function scrollToTop() {

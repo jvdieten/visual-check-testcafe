@@ -1,16 +1,25 @@
 export interface Config {
-  maxDiffPercentage: number
+  maxDiffPercentage?: number,
+  selector?: string,
+  timeOut?: number
 }
-//TODO: Discussed with Marloes that aggregation of ReportResult based on test should occur. This should be implemented in template!
-export interface AggregatedReportTestResult {
+
+export interface AggregatedReportResult {
+  index: number,
+  fixtureName: string,
   testName: string,
+  totalPassed: number,
+  totalFailed: number,
+  testStatus: 'passed' | 'failed',
   reportResults: ReportResult[]
 }
 
 export interface ReportResult {
   index?: number,
-  result: 'passed' | 'failed',
+  status: 'passed' | 'failed',
   name: string,
+  fixtureName: string,
+  misMatchPercentage?: number,
   browser: string,
   os: string,
   details: [{
@@ -21,6 +30,21 @@ export interface ReportResult {
 }
 
 export interface Report {
-  results: ReportResult[],
+  results: AggregatedReportResult[],
   total: number
 }
+
+
+export const resembleOptions = {
+  ignore: 'antialiasing',
+  output: {
+    errorColor: {
+      blue: 255,
+      green: 0,
+      red: 255
+    },
+    errorType: 'movement',
+    outputDiff: true
+  },
+  scaleToSameSize: true
+};
