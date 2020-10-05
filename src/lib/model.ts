@@ -1,6 +1,10 @@
+// @ts-ignore
+import { Selector } from "testcafe";
+
 export interface Config {
+  label?: string
   maxDiffPercentage?: number,
-  selector?: string,
+  selector?: Selector,
   timeOut?: number
 }
 

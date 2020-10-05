@@ -5,9 +5,9 @@ Testcafe plugin for testing visual regression backed by resemblejs image compare
 ## Features
 
 - Fully integrated in test run
-- Concurrency
-- Multi-browsers
-- Reporting
+- Concurrency support
+- Multi-browser support
+- Reporting including multi-browser
 
 ## Installation
 
@@ -38,19 +38,19 @@ test('Automated visual testing', async t => {
 ### Reporting
 
 <p align="center">
-  <img width="650" height="490" src="report.png">
+  <img width="700" height="475" src="report.png">
 </p>
 
 
 ### Options
 ```
-visualCheck(t, label?, options?)
+visualCheck(t, options?)
 ```
 
-- `label|options.label` &mdash; Custom name for the taken snapshot
+- `options.label` &mdash; Custom name for the taken snapshot
 - `options.timeout` &mdash; Waiting time before taking snapshots
 - `options.selector` &mdash; String, or `Selector()` to match on the DOM
-- `options.maxDiffOffset`&mdash; Default is 0.1 
+- `options.maxDiffPercentage`&mdash; Default is 0.1 
 
 ### Setup 
 Each time you run tests with --setup-baseline it'll take the base screenshots.
@@ -72,4 +72,8 @@ AssertionError: visual-check-testcafe: no baseline present, storing baseline for
       +undefined
 ```
 
+## RoadMap
 
+- Add configurable output folder
+- Add custom typings for testcontroller testRun
+- Add automated tests
