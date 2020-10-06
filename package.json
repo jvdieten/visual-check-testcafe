@@ -5,7 +5,7 @@
   "main": "build/main/index.js",
   "typings": "build/main/index.d.ts",
   "module": "build/module/index.js",
-  "repository": "https://github.com/jvdieten/visual-compare-testcafe",
+  "repository": "https://github.com/jvdieten/visual-check-testcafe",
   "author": "Joost van Dieten <joost.van.dieten@testassured.nl> (http://www.testassured.nl)",
   "license": "MIT",
   "keywords": [

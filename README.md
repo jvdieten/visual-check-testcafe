@@ -14,7 +14,7 @@ Testcafe plugin for testing visual regression backed by resemblejs image compare
 ## Installation
 
 ```bash
-npm install visual-compare-testcafe --save-dev
+npm install visual-check-testcafe --save-dev
 ```
 
 ## How to use
